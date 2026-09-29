@@ -38,16 +38,15 @@ Evaluate the resume using the following framework:
 5. MISSING KEYWORDS (optional, only if job description provided)
    - List important keywords/skills from the job description absent in the resume.
 
-Respond ONLY in the following JSON format, with no extra commentary:
+Format the response as readable Markdown with these headings:
+## ATS Score
+## Score Justification
+## Strengths
+## Weaknesses
+## Suggestions
+## Missing Keywords
 
-{{
-  "ats_score": <integer 0-100>,
-  "score_justification": "<string>",
-  "strengths": ["<string>", ...],
-  "weaknesses": ["<string>", ...],
-  "suggestions": ["<string>", ...],
-  "missing_keywords": ["<string>", ...]
-}}
+Use concise bullet points for each list. Do not return JSON.
 """
 
     response = model.generate_content(prompt)
@@ -94,26 +93,24 @@ Perform a detailed comparison using the following framework:
      or flagging real gaps to address.
    - Prioritize by expected impact on match score.
 
-Respond ONLY in the following JSON format, with no extra commentary:
+Format the response as readable Markdown with these headings:
+## Match Score
+## Score Justification
+## Matching Skills
+## Missing Skills
+### Critical
+### Preferred
+## Partial Matches
+## Suggestions
 
-{{
-  "match_score": <integer 0-100>,
-  "score_justification": "<string>",
-  "matching_skills": [{{"skill": "<string>", "evidence": "<string>"}}, ...],
-  "missing_skills": {{
-    "critical": ["<string>", ...],
-    "preferred": ["<string>", ...]
-  }},
-  "partial_matches": [{{"jd_requirement": "<string>", "resume_evidence": "<string>"}}, ...],
-  "suggestions": ["<string>", ...]
-}}
+Use concise bullet points and include evidence for each skill where applicable. Do not return JSON.
 """
 
     response = model.generate_content(prompt)
 
     return response.text
 
-def generate_questions(resume_text):
+def generate_questions(resume_text, jd_text=""):
 
     prompt = f"""
 You are an experienced technical interviewer and hiring manager preparing to interview 
@@ -121,7 +118,6 @@ this candidate. Generate interview questions that probe the specific claims, pro
 and skills in their resume — not generic questions that could apply to anyone.
 
 RESUME:{resume_text}
-
 
 
 Generate interview questions across the following categories:
@@ -151,19 +147,14 @@ Generate interview questions across the following categories:
 {f'''5. ROLE-FIT (2-3 questions)
    - Directly assess alignment between resume experience and the target job description.
    - Focus especially on any gaps identified between the two.
-''' }
+''' if jd_text else ""}
 
 For each question, briefly note WHY you're asking it (what it's meant to reveal).
 
-Respond ONLY in the following JSON format, with no extra commentary:
-
-{{
-  "experience_specific": [{{"question": "<string>", "purpose": "<string>"}}, ...],
-  "technical": [{{"question": "<string>", "purpose": "<string>"}}, ...],
-  "gaps_red_flags": [{{"question": "<string>", "purpose": "<string>"}}, ...],
-  "behavioral": [{{"question": "<string>", "purpose": "<string>"}}, ...],
-  "role_fit": [{{"question": "<string>", "purpose": "<string>"}}, ...]
-}}
+Format the response as readable Markdown, grouping questions under headings for
+Experience-Specific, Technical / Skill-Verification, Gaps & Red Flags, Behavioral,
+and Role-Fit. Number each question and briefly state its purpose underneath.
+Do not return JSON.
 """
 
     response = model.generate_content(prompt)

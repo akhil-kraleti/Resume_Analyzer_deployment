@@ -33,9 +33,9 @@ if uploaded_file:
        
        
         st.markdown(result)
-        questions = generate_questions(text)
+        questions = generate_questions(text, job_description)
         st.subheader("Interview Questions")
-        st.write(questions)
+        st.markdown(questions)
 
 
 
